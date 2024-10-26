@@ -1,6 +1,4 @@
-import data
-
-# Write your functions for each part in the space below.
+from typing import Optional
 
 import data
 
@@ -22,7 +20,7 @@ def create_rectangle(a : data.Point, b : data.Point) -> data.Rectangle:
 # INPUT: 2 objects of Duration to be compared
 # OUTPUT: bool representing if the first Duration is shorter than the second Duration
 def shorter_duration_than(a : data.Duration, b : data.Duration) -> bool:
-    return a.minutes > b.minutes or (a.minutes >= b.minutes and a.seconds > b.seconds)
+    return a.minutes < b.minutes or (a.minutes <= b.minutes and a.seconds < b.seconds)
 
 # Part 3
 # Returns a list of songs shorter than a given Duration
@@ -30,20 +28,16 @@ def shorter_duration_than(a : data.Duration, b : data.Duration) -> bool:
 # OUTPUT: list[Song] that contains Song objects less than the given Duration object
 def song_shorter_than(songs : list[data.Song], time : data.Duration):
     return [song for song in songs if shorter_duration_than(song.duration, time)]
- songs =
 
-time = data.Duration(2, 35)
-actual = song_shorter_than(songs, time)
-print(actual)
 # Part 4
 # Calculates the running time of a given list of songs
 # INPUT: list of Songs objects, list of integers corresponding with the Song list
 # OUTPUT: duration of the songs
-def running_time(songs : list[data.Song], position: list[int]) -> data.Duration:
-    playlist = [songs[pos] for pos in position]
+def running_time(songs : list[data.Song], positions: list[int]) -> data.Duration:
+    playlist = [songs[pos] for pos in positions]
     seconds = sum([song.duration.seconds for song in playlist])
     minutes = sum([song.duration.minutes for song in playlist]) + seconds // 60
-    seconds = seconds // 60
+    seconds = seconds % 60
     return data.Duration(minutes, seconds)
 
 # Part 5
@@ -52,24 +46,39 @@ def running_time(songs : list[data.Song], position: list[int]) -> data.Duration:
 # INPUT: list[str] representing a list of city names showing a route
 # OUTPUT: bool if the route is valid
 def validate_route(city_links : list[list[str]], route : list[str]) -> bool:
-    for i in range(len(route)):
-        for j in range(len(city_links)):
-            if (route[i] in city_links[j]):
-                if (route[i + 1] in city_links):
-                    break
-                else:
-                    return False
+    if len(route) == 0: return True
+    for i in range(len(route)-1):
+        city = route[i]
+        correct_city_link_list = [city_link for city_link in city_links if city in city_link and route[i + 1] in city_link]
+        if len(correct_city_link_list) == 0:
+            return False
     return True
-"""
-city_links = [["slo","sm"],
-              ["slo","pb"],
-              ["ast","sm"],
-              ["ast","crest"]]
-route = ["slo","sm","ast"]
-x = validate_route(city_links,route)
-print(x)
-"""
-
-
 
 # Part 6
+# Returns the index with the highest value at index 0
+# INPUT: list[list[int]] representing the list to be parsed through
+# OUTPUT: int representing the index of the list with the largest first element
+def largest_first_element(nums : list[[int]]) -> int:
+    largest = 0
+    for i in range(len(nums)):
+        if(nums[largest][0] < nums[i][0]):
+            largest = i
+    return largest
+
+# Returns the index at which the longest contiguous repetition begins, or None
+# INPUT: list of type integers to be parsed through
+# OUTPUT: integer representing the index at which the largest contiguous repetition begins,
+#         or None if there is no repetition
+def longest_repetition(nums : list[int]) -> Optional[int]:
+    if (len(nums) == 0 or nums == []): return None
+    count = 1
+    index = 0
+    repetitions = []
+    for i in range(len(nums) - 1):
+        if(nums[i] == nums[i+1]):
+            count += 1
+        else:
+            repetitions.append([count,index])
+            count = 1
+            index = i + 1
+    return repetitions[largest_first_element(repetitions)][1]
